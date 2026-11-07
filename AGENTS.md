@@ -1,42 +1,34 @@
 # AGENTS.md
 
-Portfólio estático em HTML/CSS/JS (Davi Miguel). Sem passo de build, sem package.json, sem testes, sem CI.
+Portfólio estático em HTML/CSS/JS (Davi Miguel), em português (`pt-BR` — conteúdo e atributos `lang`). Sem passo de build, sem package.json, sem testes, sem CI.
 
 ## Estrutura
-Todo o fonte fica em `portifolio/`:
-- 6 páginas HTML: `index`, `sobre`, `projetos`, `habilidades`, `certificacoes`, `contato`
-- `css/style.css`, `js/main.js`, `assets/logo.png`
-- `Curriculo_Davi_Miguel.pdf` (arquivo para download do currículo — substitua pelo PDF real se houver)
-Ponto de entrada: `portifolio/index.html`.
-As páginas se referenciam umas às outras e aos assets com caminhos relativos — todos resolvidos dentro de `portifolio/`. Mantenha os arquivos nessa pasta ou ajuste os caminhos se mover algo.
+- Todo o fonte fica em `portifolio/` (6 páginas: `index`, `sobre`, `projetos`, `habilidades`, `certificacoes`, `contato`; mais `css/style.css`, `js/main.js`, `assets/`).
+- Ponto de entrada: `portifolio/index.html`. Visualize abrindo esse arquivo direto no navegador — não precisa servidor, instalação nem build.
+- Os caminhos entre páginas e assets são relativos e resolvidos dentro de `portifolio/`. Não mova arquivos de lugar sem ajustar os caminhos.
 
-## Como visualizar
-Abra `portifolio/index.html` diretamente no navegador. Não é necessário servidor de desenvolvimento, instalação nem build.
+## Tema claro/escuro
+- `js/main.js` grava `data-theme="dark"|"light"` em `<html>` e persiste no `localStorage` com a chave `dm-theme`. Na primeira visita (sem valor salvo), o tema escuro segue `prefers-color-scheme`.
+- Use as variáveis CSS `--*` de `:root` / `[data-theme="dark"]` em vez de cores fixas.
 
-## Idioma
-Todo o conteúdo e os atributos `lang` estão em português (`pt-BR`).
-
-## Tema
-O botão claro/escuro grava `data-theme="dark"` ou `"light"` em `<html>` e persiste no `localStorage` com a chave `dm-theme`. Use as variáveis CSS existentes `--*` em `:root` / `[data-theme="dark"]` em vez de cores fixas.
-
-## Animações
-Elementos com a classe `.reveal` aparecem com fade-in via IntersectionObserver (adiciona `.in` quando entram na área visível), com fallback em `window.load`. Não remova `.reveal` de conteúdos que devem ser animados.
+## Animações `.reveal` (guard de progressive enhancement)
+- O CSS esconde `.reveal` **apenas sob `.js`** (`.js .reveal { opacity: 0 }`), porque um `<script>` inline em cada `<head>` adiciona `document.documentElement.classList.add("js")`.
+- Nunca estilize `.reveal` fora do escopo `.js` — sem isso, usuários sem JS veriam conteúdo invisível. Não remova o script inline nem a classe `.reveal` de conteúdos animados.
+- `IntersectionObserver` adiciona `.in` — é só assim que o fade dispara. Um fallback em `window.load` exibe o que estiver visível após 400 ms.
 
 ## Filtros (projetos e certificações)
-Páginas `projetos.html` e `certificacoes.html` contêm botões `.filter-chip` com `data-category`. O JS em `js/main.js` esconde/mostra cards com `[data-category]` conforme o filtro selecionado ("Todos" mostra tudo). Ao adicionar novos cards, inclua o atributo `data-category` com a categoria correspondente.
-
-## Páginas e conteúdo
-- `projetos.html`: destaque do Éden (sistema de gestão condominial — módulo de ocorrências: morador registra, síndico gerencia; inclui login, documentos e landing page) + grid de cards agrupados por categoria (Tecnologia, Edição, UI/UX, Criação). Vídeos de edição linkados ao Google Drive.
-- `certificacoes.html`: 12 cards de certificações filtráveis por Tecnologia, Desenvolvimento Profissional e Pessoal e Design. Quando "Todas" está ativo, a listagem aparece em ordem aleatória. Clicar em uma categoria mostra apenas ela; clicar novamente (ou em "Todas") retorna a todos em ordem aleatória.
-
-## Botão "Baixar currículo"
-Aponta para `Curriculo_Davi_Miguel.pdf` com atributo `download`. Coloque o PDF real nessa pasta para o download funcionar.
+- Botões `.filter-chip` com `data-category`; cards com `[data-category]`. Categorias válidas — projetos: `Todas`/`Todos` (ativa por padrão), `Tecnologia`, `Edição`, `UI/UX`, `Criação`, `Projetos de Pesquisa e Extensão`; certificações: `Todas` (ativa por padrão), `Tecnologia`, `Desenvolvimento Profissional e Pessoal`, `Design`, `Formação Acadêmica`.
+- Os IDs `NN / Categoria` dos cards de projeto são **totalmente automáticos** (bloco em `js/main.js`): o número vem da ordem no DOM e a categoria vem do `data-category` do card. O primeiro `.card-meta span` fica **vazio** no HTML — nunca escreva número nem categoria nele.
+- Ao adicionar cards, inclua sempre o `data-category` — cards sem o atributo desaparecem ao filtrar.
+- "Todas" embaralha a ordem dos cards a cada aplicação do filtro; clicar num chip já ativo volta para "Todas". O botão `#removeFilter` (o `×`) faz o mesmo. Mantenha esses comportamentos.
 
 ## Pontos de atenção
-- `index.html` (linha 12) referencia o favicon `assets/minhamarca-removebg-preview.png`, que não existe (o asset real é `assets/logo.png`). Link quebrado pré-existente.
-- Contato usa apenas links `mailto:` — não há backend de formulário.
-- As fontes carregam do CDN do Google Fonts (requer rede).
-- `projetos.html` linka para uma demo externa em `eden.gabsprojects.uk/...`.
+- `js/main.js` define a função `aplicarFiltro` duas vezes (a segunda sobrescreve a primeira). Só a segunda roda — não perca tempo editando a cópia inútil; um refactor pode remover a primeira.
+- `certificacoes.html` (linha 39) linka `Curriculo_Davi_Miguel.pdf`, que não existe. O PDF real é `assets/Curriculo_DaviMiguel.pdf` (usado corretamente nas outras 5 páginas). Link quebrado pré-existente — padronize ao tocar nesse trecho.
+- Em `index.html`, os botões "Baixar currículo" (hero) e "Ver estudo de caso" apontam para `#` — placeholders pré-existentes.
+- Contato usa apenas links de e-mail e WhatsApp (sem backend de formulário). O card de e-mail em `contato.html` abre a janela "Escrever" do Gmail com o destinatário preenchido; `index.html` ainda usa `mailto:contato@davimiguel.com`. WhatsApp: `wa.me/5521996778007` com mensagem pré-preenchida ("Olá! Vim do seu portfólio...") — botão ao lado de "Começar uma conversa" no `index.html` e linha `social-row` no `contato.html`. E-mails diferem entre páginas: `contato@davimiguel.com` (index) e `davimiguel.tech@gmail.com` (contato).
+- As fontes (Google Fonts) carregam do CDN — requer rede.
+- `projetos.html` linka para a demo externa do Éden em `eden.gabsprojects.uk`.
 
 ## Comandos
 Nenhum. Não há toolchain de teste/lint/build. Não invente comandos `npm` nem CI.

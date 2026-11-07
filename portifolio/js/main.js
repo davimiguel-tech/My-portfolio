@@ -63,6 +63,21 @@
     }, 400);
   });
 
+  /* ---------- IDs automáticos dos cards de projeto ---------- */
+  /* Numera os spans "NN / Categoria" pela ordem no DOM; a categoria vem do
+     data-category do card. Nunca digite número no HTML — deixe o span vazio. */
+  (function () {
+    const cards = document.querySelectorAll(".project-card");
+    if (!cards.length) return;
+    cards.forEach((card, i) => {
+      const span = card.querySelector(".card-meta span");
+      if (!span) return;
+      const categoria = card.getAttribute("data-category") ||
+        span.textContent.replace(/^\s*\d+\s*\/\s*/, "").trim();
+      span.textContent = `${String(i + 1).padStart(2, "0")} / ${categoria}`;
+    });
+  })();
+
   /* ---------- Filtro de projetos / certificações ---------- */
   (function () {
     const chips = document.querySelectorAll(".filter-chip");
